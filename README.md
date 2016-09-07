@@ -26,7 +26,7 @@ Install the Python requirements:
  where user_id is id of user from VK. Your should have conversation with this user, because generator will use that messages.
  You can look at config.py for some additional settings. All downloaded messages in data folder.
 
-# Using module
+## Using module
 
  For more fine-tuning you can look at this methods:
  * generate_messages_bigrams(messages, count=5, start_word=None, min_word=4) - bigram model
