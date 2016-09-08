@@ -241,6 +241,12 @@ def trigram_from_messages(messages):
 def generate_with_bigrams(start_words, transitions, start_word=None):
     current = random.choice(start_words)
     if start_word:
+        # check for existing of pairs with start_word
+        if len([w for w in filter(lambda x: x != '.',
+                                  transitions[start_word])]) == 0:
+            raise Exception('Wrong start_word!\
+                             No message starting like this: {}'
+                            .format(start_word))
         current = start_word
     result = [current]
     while True:
@@ -300,15 +306,36 @@ def generate_messages_trigrams(messages, count=5, start_word=None, min_word=4):
     return result
 
 
-# TODO
-def generate_story(messages, length=10, start_word=None):
-    trans, starts = bigram_from_messages(messages)
+# more fun generator
+def generate_story(messages, length=3, start_word=None):
+    initial_start_word = start_word
     result = []
-    for i in range(length):
-        cur = generate_with_bigrams(starts, trans, start_word)
-        words = words_from_message(cur)
-        start_word = words[-1]
-        result.extend(words[:-1])
+    i = 0
+    restart_count = 0
+
+    while i < length:
+        try:
+            # if there is no messages starting from start_word - rise Exception
+            msg = generate_messages_bigrams(messages, 1, start_word, 2)[0]
+        except:
+            # start again
+            i = 0
+            result = []
+            start_word = initial_start_word
+            restart_count += 1
+            continue
+
+        words = words_from_message(msg)
+        words = prepare_words(words)
+        if i == 0:  # only for rist iteration, else will lead to duplication
+            result.append(words[0])
+        for prev, cur in zip(words, words[1:]):
+            if prev not in ['.', '!', '?'] and cur != '.':
+                result.append(cur)
+        start_word = result[-1]
+        result.append(',')
+        i += 1
+    print('restart count:', restart_count)
     return ' '.join(result)
 
 

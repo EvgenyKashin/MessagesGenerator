@@ -44,5 +44,9 @@ You can look at config.py for some additional settings. All downloaded messages 
 
 For more fine-tuning you can look at this methods:
 * download_messages(user_id, max_iter=None) - downloading messages
+* read_messages(user_id) - read from file
 * generate_messages_bigrams(messages, count=5, start_word=None, min_word=4) - bigram model
 * generate_messages_trigrams(messages, count=5, start_word=None, min_word=4) - trigram model. Number of messages should be more than 10000 for normal work
+
+And not stable method (for fun):
+* generate_story(messages, length=3, start_word=None) - create short story which consist of length (for default 3) different messages. For using this method you should have a really huge dataset of messages (>50k). length > 3 will lead to very long execution time.
