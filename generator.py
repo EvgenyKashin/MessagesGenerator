@@ -186,21 +186,46 @@ def prepare_words(words):
 
 @memo_list
 def bigram_from_messages(messages):
+    """
+    return transition and start_words
+    start_words - first word and word before a period symbol. Same word can be
+        added multipy times. The greater the number of times the word appears
+        the greater the probability of starting a message from this word.
+    transitions - list of list, where list - transitions['your_word'] contains
+        all word wich can be generated after 'your_word'. Using the same idea
+        with probabilities.
+    @memo_list for better perfomance
+    """
+
     transitions = defaultdict(list)
     start_words = []
     for msg in messages:
         words = words_from_message(msg)
         words = prepare_words(words)
         if len(words) > 2:
-            start_words.append(words[0])
+            words = ['.'] + words  # for adding first word into start_words
             bigrams = zip(words, words[1:])
             for prev, current in bigrams:
+                if prev == '.' and re.match(r'[а-яa-z]+', current):
+                    start_words.append(current)
                 transitions[prev].append(current)
     return transitions, start_words
 
 
 @memo_list
 def trigram_from_messages(messages):
+    """
+    return transition and start_words
+    start_words - first word and word before a period symbol. Same word can be
+        added multipy times. The greater the number of times the word appears
+        the greater the probability of starting a message from this word.
+    transitions - list of list, where list -
+        transitions[('first_word', 'second_word')] contains
+        all word wich can be generated after pair 'wirst_word second_word'.
+        Using the same idea with probabilities.
+    @memo_list for better perfomance
+    """
+
     transitions = defaultdict(list)
     start_words = []
     for msg in messages:
