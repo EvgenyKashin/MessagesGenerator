@@ -301,19 +301,20 @@ def get_long_messages(messages, min_word=15):
 
 
 def words_in_document(document):
+    # return olny alphabetical words
     document = document.lower()
     words = re.findall(r'[а-яa-z]+', document)
     return [w for w in words]
 
 
 def messages_to_UCI_bag_of_words(messages, min_word=15, name='1'):
+    # exporting to UCI baf of words format
     messages = get_long_messages(messages, min_word)
     documents = [m.rstrip().lower() for m in messages]
     count_of_documents = len(documents)
     all_words = words_in_document(' '.join(documents))
     unique_words_count = len(set(all_words))
     all_words_count = len(all_words)
-    # print(count_of_documents, all_words_count, unique_words_count)
 
     dictionary = {}
     for i, word in enumerate(set(all_words)):
@@ -342,6 +343,7 @@ def messages_to_UCI_bag_of_words(messages, min_word=15, name='1'):
 
 
 def messages_to_json(messages, min_word=15, name='1'):
+    # exporting to json format (for gensim)
     messages = get_long_messages(messages, min_word)
     documents = [m.rstrip().lower() for m in messages]
     documents = [words_in_document(document) for document in documents]
