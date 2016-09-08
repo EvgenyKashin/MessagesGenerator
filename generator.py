@@ -118,7 +118,7 @@ def download_messages(user_id, max_iter=None):
 
         # because of limit for calling api
         time.sleep(0.33)
-    return my, other
+    return my_messages, other_messages
 
 
 def read_messages(user_id):
@@ -382,6 +382,7 @@ if __name__ == '__main__':
         user_id = str(sys.argv[1])
         print('Downloading messeges from {} ..'.format(user_id))
         my, other = download_messages(user_id)
+        print(len(my), len(other))
         print('Download complete!')
         print('Generating messages..')
         generate_messages_bigrams_totxt(my, config.GENERATING_MESSAGE_COUNT,
