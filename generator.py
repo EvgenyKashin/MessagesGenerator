@@ -2,7 +2,7 @@
 """
 Created on Mon Jul 11 16:34:30 2016
 
-@author: USER
+@author: EvgenyKashin
 """
 
 import requests
@@ -135,6 +135,8 @@ def read_messages(user_id):
 
 
 def words_from_message(message):
+    # split only by spaces
+    # removing commas
     words = re.split(r'[ ]', message)
     words = [re.sub(',', '', word) for word in words]
     return [word.strip().lower() for word in words if word]
@@ -152,29 +154,34 @@ def counter_from_messages(messages):
 
 
 def prepare_words(words):
+    # processing newline sybmol
     i = 0
     l = len(words)
     while i < l:
         word = words[i]
-
         if '\n' in word:
             splitted_word = word.split('\n')
             words = words[:i] + [splitted_word[0]] + ['.'] +\
                                 [splitted_word[1]] + words[i + 1:]
-            l += 2
-            i += 2
-            continue
+            l += 2  # were 1 became 3 words
+            i += 1  # skiping '.'
+        i += 1
 
+    # processing punctuation
+    i = 0
+    l = len(words)
+    while i < l:
+        word = words[i]
         for sign in ['?', '!', '.']:
             if sign in word:
                 splitted_word = word.split(sign)
                 words = words[:i] + [splitted_word[0]] + [sign] + ['.'] +\
                         words[i + 1:]
-                l += 2
-                i += 2
-                break
+                l += 2  # were 1 became 3 words
+                i += 2  # skiping sign and '.'
+                break  # sybmol has already founded
         i += 1
-    return words
+    return [w for w in words if w]
 
 
 @memo_list
