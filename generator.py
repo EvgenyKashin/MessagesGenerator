@@ -16,7 +16,6 @@ import random
 import sys
 import config
 
-url_for_token = 'https://oauth.vk.com/authorize?client_id=5298215&scope=messages&redirect_uri=https://oauth.vk.com/blank.html&display=page&response_type=token'
 msg_url = 'https://api.vk.com/method/messages.getHistory?user_id={}&\
            &access_token={}&v=5.52&count={}&offset={}&rev={}'
 
