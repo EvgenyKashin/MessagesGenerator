@@ -251,7 +251,10 @@ def generate_with_bigrams(start_words, transitions, start_word=None):
     result = [current]
     while True:
         next_word_candidates = transitions[current]
-        if len(next_word_candidates) > 0:
+        print(len([w for w in filter(lambda x: x not in ['.', ',', '!', '?', ':'],
+                                  next_word_candidates)]))
+        if len([w for w in filter(lambda x: x not in ['.', ',', '!', '?', ':'],
+                                  next_word_candidates)]) > 0:
             current = random.choice(next_word_candidates)
         else:
             return ' '.join(result)
@@ -390,7 +393,7 @@ def messages_to_UCI_bag_of_words(messages, min_word=15, name='1'):
 
     with open(name + 'data/_dictionary.txt', 'w', encoding='utf-8') as f:
         for word, id in sorted(dictionary.items(), key=lambda x: x[1]):
-            f.write(word + '\n')
+            f.write(word + '\n\n')
 
 
 def messages_to_json(messages, min_word=15, name='1'):

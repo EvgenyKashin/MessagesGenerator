@@ -90,6 +90,7 @@ ENV/
 
 # txt files with messages
 *.txt
+!requirements.txt
 
 # private settings
 private.py
