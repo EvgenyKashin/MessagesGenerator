@@ -234,6 +234,8 @@ def trigram_from_messages(messages):
             start_words.append(words[0])
             trigrams = zip(words, words[1:], words[2:])
             for prev, current, next in trigrams:
+                if prev == '.' and re.match(r'[а-яa-z]+', current):
+                    start_words.append(current)
                 transitions[(prev, current)].append(next)
     return transitions, start_words
 
@@ -251,10 +253,9 @@ def generate_with_bigrams(start_words, transitions, start_word=None):
     result = [current]
     while True:
         next_word_candidates = transitions[current]
-        print(len([w for w in filter(lambda x: x not in ['.', ',', '!', '?', ':'],
-                                  next_word_candidates)]))
-        if len([w for w in filter(lambda x: x not in ['.', ',', '!', '?', ':'],
-                                  next_word_candidates)]) > 0:
+        # this condition need for avoiding infinire loop
+        if len(set(filter(lambda x: x not in ['.', ',', '!', '?', ':'],
+                          next_word_candidates))) > 1:
             current = random.choice(next_word_candidates)
         else:
             return ' '.join(result)
@@ -269,11 +270,19 @@ def generate_with_trigrams(start_words, transitions, start_word=None):
     current = random.choice(start_words)
     prev = random.choice(start_words)
     if start_word:
+        # check for existing of pairs with start_word
+        if len([w for w in filter(lambda x: x != '.',
+                                  transitions[start_word])]) == 0:
+            raise Exception('Wrong start_word!\
+                             No message starting like this: {}'
+                            .format(start_word))
         current = start_word
     result = [current]
     while True:
         next_word_candidates = transitions[(prev, current)]
-        if len(next_word_candidates) > 0:
+        # this condition need for avoiding infinire loop
+        if len(set(filter(lambda x: x not in ['.', ',', '!', '?', ':'],
+                          next_word_candidates))) > 1:
             next_word = random.choice(next_word_candidates)
             prev, current = current, next_word
         else:
@@ -294,6 +303,8 @@ def generate_messages_bigrams(messages, count=5, start_word=None, min_word=4):
         if len(words_from_message(msg)) > min_word:
             result.append(msg)
             i += 1
+            if i % 200 == 0:
+                print('{:.2f}%'.format(i / count * 100))
     return result
 
 
@@ -306,6 +317,8 @@ def generate_messages_trigrams(messages, count=5, start_word=None, min_word=4):
         if len(words_from_message(msg)) > min_word:
             result.append(msg)
             i += 1
+            if i % 200 == 0:
+                print('{:.2f}%'.format(i / count * 100))
     return result
 
 
@@ -346,7 +359,7 @@ def generate_messages_bigrams_totxt(messages, count=1000, start_word=None,
                                     min_word=3, filename='data/output.txt'):
     messages = generate_messages_bigrams(messages, count, start_word, min_word)
     with open(filename, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(messages))
+        f.write('\n\n'.join(messages))
 
 
 def get_long_messages(messages, min_word=15):
@@ -419,7 +432,7 @@ if __name__ == '__main__':
                                         config.START_WORD,
                                         config.MIN_WORD_IN_MESSAGE,
                                         filename='my_generated.txt')
-        generate_messages_bigrams_totxt(my, config.GENERATING_MESSAGE_COUNT,
+        generate_messages_bigrams_totxt(other, config.GENERATING_MESSAGE_COUNT,
                                         config.START_WORD,
                                         config.MIN_WORD_IN_MESSAGE,
                                         filename='{}_generated.txt'
