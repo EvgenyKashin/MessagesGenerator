@@ -16,6 +16,8 @@ Having transition list and start words, it can be generated in a such way (simpl
 
 Similarly with the trigram model.
 
+
+Added hokku generator. It generate 3 lines with 5, 7, 5 syllables.
 ## Usage
 
 Install the Python requirements:
@@ -35,7 +37,7 @@ You can easy get YOUR_CLIENT_ID if you create any application in VK.
 
 After that steps you can call script from command line:
 ```
-python generator.py user_id
+python generator.py -i <user_id> -m for generating messages or -h for generating hokku
 ```
 where user_id is id of user from VK. Your should have conversation with this user, because generator will use that messages.
 You can look at config.py for some additional settings. All downloaded messages in data folder.
@@ -47,6 +49,7 @@ For more fine-tuning you can look at this methods:
 * read_messages(user_id) - read from file
 * generate_messages_bigrams(messages, count=5, start_word=None, min_word=4) - bigram model
 * generate_messages_trigrams(messages, count=5, start_word=None, min_word=4) - trigram model. Number of messages should be more than 10000 for normal work
+* generate_hokku(messages, start_word=None, count=3, gen_msgs=50) - hokku generation, gen_msgs - size of batch (to speed up generation)
 
 And not stable method (for fun):
 * generate_story(messages, length=3, start_word=None) - create short story which consist of length (for default 3) different messages. For using this method you should have a really huge dataset of messages (>50k). length > 3 will lead to very long execution time.
