@@ -419,6 +419,69 @@ def messages_to_json(messages, min_word=15, name='1'):
         json.dump(documents, f)
 
 
+def get_syllables_num(word):
+    vowels = {'а', 'е', 'ё', 'и', 'о', 'у', 'э', 'ю', 'я', 'ы'}
+    num = 0
+    for w in word:
+        if w in vowels:
+            num += 1
+    return num
+
+
+def generate_hokku(messages, start_word=None, count=3, gen_msgs=50):
+    result = []
+    i = 0
+    # buffer of messages
+    msgs = generate_messages_bigrams(messages, gen_msgs, start_word, 6)
+    # position in buffer
+    num = -1
+
+    while i < count:
+        num += 1
+        # if buffer ended, generate new
+        if num >= gen_msgs:
+            msgs = generate_messages_bigrams(messages, gen_msgs, start_word, 6)
+            num = 0
+
+        words = words_from_message(msgs[num])
+        words = prepare_words(words)
+        if len(words) > 15:
+            continue
+        pos_cur_word = 0
+        hokku = []
+        is_ok = True
+
+        for line_syllables in [5, 7, 5]:
+            syll_count = 0
+            line = []
+            while syll_count < line_syllables and pos_cur_word < len(words):
+                word = words[pos_cur_word]
+                syll_count += get_syllables_num(word)
+                pos_cur_word += 1
+                line.append(word)
+            if syll_count == line_syllables:
+                hokku.append(line)
+            else:
+                is_ok = False
+                break
+
+        if is_ok:
+            i += 1
+            hokku = '\n'.join([' '.join(line) for line in hokku])
+            result.append(hokku)
+            if i % 10 == 0:
+                print('{:.2f}%'.format(i / count * 100))
+
+    return result
+
+
+def generate_hokku_totxt(messages, count=100, start_word=None,
+                         filename='data/hokku.txt'):
+    hokkus = generate_hokku(messages, start_word, count)
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(hokkus))
+
+
 if __name__ == '__main__':
     if (len(sys.argv) > 1):
         # read user_id from command line argument
