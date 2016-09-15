@@ -14,6 +14,7 @@ from collections import defaultdict
 import re
 import random
 import sys
+import getopt
 import config
 
 msg_url = 'https://api.vk.com/method/messages.getHistory?user_id={}&\
@@ -482,14 +483,46 @@ def generate_hokku_totxt(messages, count=100, start_word=None,
         f.write('\n\n'.join(hokkus))
 
 
-if __name__ == '__main__':
-    if (len(sys.argv) > 1):
-        # read user_id from command line argument
-        user_id = str(sys.argv[1])
-        print('Downloading messeges from {} ..'.format(user_id))
-        my, other = download_messages(user_id)
-        print(len(my), len(other))
-        print('Download complete!')
+def main(argv):
+    help_message = 'Usage: python generator.py -i <user_id>\n' +\
+                   '-m for generating messages\n-h for generating hokku'
+    if len(argv) == 0:
+        print(help_message)
+        sys.exit(1)
+    try:
+        opts, args = getopt.getopt(argv, 'mhi:')
+    except getopt.GetoptError:
+        print(help_message)
+        sys.exit(1)
+
+    is_msg = False
+    is_hokku = False
+    user_id = ''
+    for opt, arg in opts:
+        if opt == '-m':
+            is_msg = True
+        elif opt == '-h':
+            is_hokku = True
+        elif opt == '-i':
+            user_id = str(arg)
+        else:
+            print(help_message)
+            sys.exit(1)
+
+    if not user_id:
+        print('-i <user_id> is required argument!')
+        sys.exit(1)
+
+    if not (is_msg or is_hokku):
+        print('-h or -m are required arguments!')
+        sys.exit(1)
+
+    print('Downloading messeges from {} ..'.format(user_id))
+    my, other = download_messages(user_id)
+    print(len(my), len(other))
+    print('Download complete!')
+
+    if is_msg:
         print('Generating messages..')
         generate_messages_bigrams_totxt(my, config.GENERATING_MESSAGE_COUNT,
                                         config.START_WORD,
@@ -501,3 +534,22 @@ if __name__ == '__main__':
                                         filename='{}_generated.txt'
                                                  .format(user_id))
         print('Complete!')
+        sys.exit()
+    elif is_hokku:
+        print('Generating hokku..')
+        generate_hokku_totxt(my, config.GENERATING_HOKKU_COUNT,
+                             config.START_WORD,
+                             filename='my_hokku.txt')
+        generate_hokku_totxt(other, config.GENERATING_HOKKU_COUNT,
+                             config.START_WORD,
+                             filename='{}_hokku.txt'.format(user_id))
+        print('Complete!')
+        sys.exit()
+    else:
+        print('Usage: generator.py -i <user_id>\n' +
+              '-m for generating messages\n-h for generating hokku')
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
